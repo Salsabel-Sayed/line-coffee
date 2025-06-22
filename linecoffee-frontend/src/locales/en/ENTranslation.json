@@ -1,0 +1,25 @@
+{
+    "navbar": {
+        "products": "Products",
+        "home": "Home",
+        "brand": "Brand",
+        "language": "عربية",
+        "profile": "your profile"
+    },
+    "home": {
+        "title": "Welcome to Our Store",
+        "welcomeMessage": "Discover the best products at unbeatable prices."
+    },
+    "product":{
+        "products_title": "Our Products",
+        "description": "what product about",
+        "add_to_cart": "Add to Cart",
+        "turkish_coffee": "Turkish Coffee",
+        "turkish_desc": "Fresh high-quality beans",
+        "latte": "Latte",
+        "latte_desc": "Light vanilla flavor",
+        "egp": "EGP",
+        "price": "200.0",
+        "priceBefore": "400.0"
+    }
+}

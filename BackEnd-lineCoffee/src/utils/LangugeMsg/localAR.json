@@ -1,0 +1,58 @@
+{
+    "auth": {
+        "unauthorized": "غير مصرح لك.",
+        "forbidden": "الوصول مرفوض.",
+        "login_success": "تم تسجيل الدخول بنجاح.",
+        "logout_success": "تم تسجيل الخروج بنجاح.",
+        "token_missing": "لم يتم توفير التوكن.",
+        "token_invalid": "التوكن غير صالح.",
+        "admin_only": "الدخول مقتصر على المدراء فقط."
+    },
+    "user": {
+        "not_found": "المستخدم غير موجود.",
+        "already_exists": "البريد الإلكتروني موجود بالفعل.",
+        "create_success": "تم إنشاء المستخدم بنجاح.",
+        "update_success": "تم تحديث المستخدم بنجاح.",
+        "delete_success": "تم حذف المستخدم بنجاح.",
+        "missing_fields": "يجب إدخال البريد الإلكتروني وكلمة المرور."
+    },
+    "validation": {
+        "invalid_email": "صيغة البريد الإلكتروني غير صحيحة.",
+        "required_field": "هذا الحقل مطلوب.",
+        "password_too_short": "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
+        "validation_errors": "فشل التحقق من البيانات. الرجاء مراجعة المدخلات."
+    },
+    "error": {
+        "server_error": "حدث خطأ ما. حاول مرة أخرى لاحقًا.",
+        "not_found": "المورد غير موجود.",
+        "bad_request": "طلب غير صالح.",
+        "forbidden": "ليس لديك صلاحية تنفيذ هذا الإجراء."
+    },
+    "wallet": {
+        "insufficient_funds": "رصيد المحفظة غير كافٍ.",
+        "add_success": "تمت إضافة الكوينز بنجاح.",
+        "convert_success": "تم تحويل الكوينز بنجاح.",
+        "withdraw_success": "تم السحب بنجاح."
+    },
+    "coupon": {
+        "invalid_coupon": "كوبون غير صالح أو منتهي.",
+        "used_coupon": "تم استخدام هذا الكوبون من قبل.",
+        "coupon_applied": "تم تطبيق الكوبون بنجاح."
+    },
+    "order": {
+        "create_success": "تم إنشاء الطلب بنجاح.",
+        "update_success": "تم تعديل الطلب بنجاح.",
+        "cancel_success": "تم إلغاء الطلب بنجاح."
+    },
+    "product": {
+        "not_found": "المنتج غير موجود.",
+        "already_exists": "المنتج موجود بالفعل.",
+        "create_success": "تم إنشاء المنتج بنجاح.",
+        "update_success": "تم تعديل المنتج بنجاح.",
+        "delete_success": "تم حذف المنتج بنجاح."
+    },
+    "admin": {
+        "not_allowed": "فقط المدراء يمكنهم تنفيذ هذا الإجراء.",
+        "access_denied": "تسجيل دخول المدير مطلوب."
+    }
+}

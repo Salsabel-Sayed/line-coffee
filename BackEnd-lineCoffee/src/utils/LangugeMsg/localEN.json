@@ -1,0 +1,58 @@
+{
+    "auth": {
+        "unauthorized": "You are not authorized.",
+        "forbidden": "Access forbidden.",
+        "login_success": "You have successfully logged in.",
+        "logout_success": "You have successfully logged out.",
+        "token_missing": "No token provided.",
+        "token_invalid": "Invalid token.",
+        "admin_only": "Access denied. Admins only."
+    },
+    "user": {
+        "not_found": "User not found.",
+        "already_exists": "Email already exists.",
+        "create_success": "User created successfully.",
+        "update_success": "User updated successfully.",
+        "delete_success": "User deleted successfully.",
+        "missing_fields": "Email and password are required."
+    },
+    "validation": {
+        "invalid_email": "Invalid email format.",
+        "required_field": "This field is required.",
+        "password_too_short": "Password must be at least 6 characters.",
+        "validation_errors": "Validation failed. Please check your input."
+    },
+    "error": {
+        "server_error": "Something went wrong. Please try again later.",
+        "not_found": "Resource not found.",
+        "bad_request": "Bad request.",
+        "forbidden": "You do not have permission to perform this action."
+    },
+    "wallet": {
+        "insufficient_funds": "Insufficient wallet balance.",
+        "add_success": "Coins added successfully.",
+        "convert_success": "Coins converted successfully.",
+        "withdraw_success": "Withdrawal successful."
+    },
+    "coupon": {
+        "invalid_coupon": "Invalid or expired coupon.",
+        "used_coupon": "Coupon already used.",
+        "coupon_applied": "Coupon applied successfully."
+    },
+    "order": {
+        "create_success": "Order created successfully.",
+        "update_success": "Order updated successfully.",
+        "cancel_success": "Order cancelled successfully."
+    },
+    "product": {
+        "not_found": "Product not found.",
+        "already_exists": "Product already exists.",
+        "create_success": "Product created successfully.",
+        "update_success": "Product updated successfully.",
+        "delete_success": "Product deleted successfully."
+    },
+    "admin": {
+        "not_allowed": "Only admins can perform this action.",
+        "access_denied": "Admin access required."
+    }
+}

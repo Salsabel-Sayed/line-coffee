@@ -1,0 +1,25 @@
+{
+    "navbar": {
+        "products": "المنتجات",
+        "home": "الرئيسية",
+        "brand": "تطبيق القهوة",
+        "language": "English",
+        "profile":"ملفك الشخصي"
+    },
+    "home": {
+        "title": "مرحبًا بك في متجرنا",
+        "welcomeMessage": "اكتشف أفضل المنتجات بأفضل الأسعار."
+    },
+    "product":{
+        "products_title": "منتجاتنا",
+        "description": "نبذة عن المنتج",
+        "add_to_cart": "أضف للسلة",
+        "turkish_coffee": "قهوة تركي",
+        "turkish_desc": "بن طازج من أجود الأنواع",
+        "latte": "لاتيه",
+        "latte_desc": "نكهة فانيليا خفيفة",
+        "egp": "جنيه",
+        "price":"200.0",
+        "priceBefore": "400.0"
+    }
+}
