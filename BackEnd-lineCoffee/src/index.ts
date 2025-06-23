@@ -31,12 +31,17 @@ dotenv.config();
 connectDB();
 const app: Application = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173", // اسمحي للـ Frontend
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // للـ local testing
+    'https://line-coffee-ik9k.vercel.app', // رابط Vercel بتاع الفرونت
+  ],
+  credentials: true, // لو بتستخدم Cookies أو Header فيه توكن
+};
+
+app.use(cors(corsOptions));
+
+
 app.use(i18n.init);
 
 // ميدلوير يقرأ اللغة من الهيدر
