@@ -27,7 +27,7 @@ export default function Login() {
             const response = await axios.post("https://line-coffee.onrender.com/users/logIn", {
                 email,
                 password,
-            });
+            }, { withCredentials: true, });
 
             const { authorization, message } = response.data;
             // ✅ فك شفرة التوكن
