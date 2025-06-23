@@ -31,15 +31,26 @@ dotenv.config();
 connectDB();
 const app: Application = express();
 
+
+
 const corsOptions = {
-  origin: [
-    'http://localhost:5173', // للـ local testing
-    'https://line-coffee-ik9k.vercel.app', // رابط Vercel بتاع الفرونت
-  ],
-  credentials: true, // لو بتستخدم Cookies أو Header فيه توكن
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'https://line-coffee-ik9k.vercel.app',
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // ✅ دلوقتي corsOptions معروف هنا
+
 
 
 app.use(i18n.init);
