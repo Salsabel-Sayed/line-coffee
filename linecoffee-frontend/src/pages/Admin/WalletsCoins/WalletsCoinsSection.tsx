@@ -28,7 +28,7 @@ export default function WalletsSection() {
     const [amountInput, setAmountInput] = useState("");
 
     const fetchWallets = async () => {
-        const { data } = await axios.get("http://localhost:5000/users/getAllUsers", {
+        const { data } = await axios.get("https://line-coffee.onrender.com/users/getAllUsers", {
             headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,19 +53,19 @@ export default function WalletsSection() {
         try {
             if (modal.type === "coins") {
                 // مفيش توكن هنا
-                await axios.post("http://localhost:5000/coins/addCoinsToUser", {
+                await axios.post("https://line-coffee.onrender.com/coins/addCoinsToUser", {
                     userId: modal.userId,
                     coins: amount,
                 });
             } else if (modal.type === "addBalance") {
                 await axios.post(
-                    "http://localhost:5000/wallets/addBalance",
+                    "https://line-coffee.onrender.com/wallets/addBalance",
                     { userId: modal.userId, amount },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             } else if (modal.type === "deductBalance") {
                 await axios.put(
-                    `http://localhost:5000/wallets/updateWalletBalance/${modal.userId}`,
+                    `https://line-coffee.onrender.com/wallets/updateWalletBalance/${modal.userId}`,
                     { userId: modal.userId, amount },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );

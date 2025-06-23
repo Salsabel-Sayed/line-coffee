@@ -20,7 +20,7 @@ function AddUserSection({ fetchUsers }: AddUserSectionProps) {
     const createNewUser = async () => {
         try {
             const { data } = await axios.post(
-                'http://localhost:5000/users/createUserByAdmin',
+                'https://line-coffee.onrender.com/users/createUserByAdmin',
                 newUser,
                 {
                     headers: { Authorization: `Bearer ${token}` },

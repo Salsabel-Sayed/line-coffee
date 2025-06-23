@@ -27,7 +27,7 @@ export default function ConfirmOrderPage() {
 
         try {
             // 🟨 Create Order
-            const createRes = await fetch("http://localhost:5000/orders/createOrder", {
+            const createRes = await fetch("https://line-coffee.onrender.com/orders/createOrder", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export default function ConfirmOrderPage() {
             const orderId = created.order._id;
 
             // 🟦 Complete Order
-            const completeRes = await fetch(`http://localhost:5000/orders/completeOrder/${orderId}`, {
+            const completeRes = await fetch(`https://line-coffee.onrender.com/orders/completeOrder/${orderId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

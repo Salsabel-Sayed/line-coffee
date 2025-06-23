@@ -17,7 +17,7 @@ export default function UserReportsSection() {
 
     const fetchReports = async () => {
         try {
-            const { data } = await axios.get("http://localhost:5000/reports/getAllReports", {
+            const { data } = await axios.get("https://line-coffee.onrender.com/reports/getAllReports", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setReports(data.reports || []);
@@ -28,7 +28,7 @@ export default function UserReportsSection() {
 
     const markAsRead = async (id: string) => {
         try {
-            await axios.put(`http://localhost:5000/reports/markReportAsRead/${id}`, {}, {
+            await axios.put(`https://line-coffee.onrender.com/reports/markReportAsRead/${id}`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             fetchReports();

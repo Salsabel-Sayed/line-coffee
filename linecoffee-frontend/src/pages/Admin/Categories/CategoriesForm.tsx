@@ -27,12 +27,12 @@ export default function CategoryForm({ onClose, existingCategory }: Props) {
 
         try {
             if (existingCategory) {
-                await axios.put(`http://localhost:5000/categories/updateCategory/${existingCategory._id}`, {
+                await axios.put(`https://line-coffee.onrender.com/categories/updateCategory/${existingCategory._id}`, {
                     categoryName,
                     categoryDescription,
                 });
             } else {
-                await axios.post("http://localhost:5000/categories/addCategory", {
+                await axios.post("https://line-coffee.onrender.com/categories/addCategory", {
                     categoryName,
                     categoryDescription,
                 });

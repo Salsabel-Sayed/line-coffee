@@ -26,7 +26,7 @@ export default function PaymentsSection() {
     const token = localStorage.getItem("linecoffeeToken");
 
     const fetchPayments = async () => {
-        const res = await axios.get("http://localhost:5000/payments/getAllPayments", {
+        const res = await axios.get("https://line-coffee.onrender.com/payments/getAllPayments", {
             headers: { Authorization: `Bearer ${token}` }
         });
         setPayments(res.data.payments);
@@ -38,7 +38,7 @@ export default function PaymentsSection() {
 
     const handleConfirm = async (orderId: string) => {
         try {
-            await axios.put(`http://localhost:5000/payments/confirmManualPayment/${orderId}`, {}, {
+            await axios.put(`https://line-coffee.onrender.com/payments/confirmManualPayment/${orderId}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert("✅ Payment confirmed");

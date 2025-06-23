@@ -34,8 +34,8 @@ function ProductsPage() {
         const fetchData = async () => {
             try {
                 const [productsRes, categoriesRes] = await Promise.all([
-                    axios.get("http://localhost:5000/products/getAllProducts"),
-                    axios.get("http://localhost:5000/categories/getAllCategories")
+                    axios.get("https://line-coffee.onrender.com/products/getAllProducts"),
+                    axios.get("https://line-coffee.onrender.com/categories/getAllCategories")
                 ]);
                 setProducts(productsRes.data.products);
                 setCategories(categoriesRes.data.categories);
@@ -104,7 +104,7 @@ function ProductsPage() {
                         products={filteredAndSearchedProducts.map((p) => ({
                             id: p._id,
                             name: p.productsName,
-                            image: `http://localhost:5000${p.imageUrl}`,
+                            image: `https://line-coffee.onrender.com${p.imageUrl}`,
                             price: p.price,
                             description: p.productsDescription,
                         }))}

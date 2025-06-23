@@ -16,14 +16,14 @@ export default function ProductList() {
 
     useEffect(() => {
         axios
-            .get("http://localhost:5000/products/getAllProducts")
+            .get("https://line-coffee.onrender.com/products/getAllProducts")
             .then((response) => setProducts(response.data.products))
             .catch((error) => console.error("Error fetching products:", error));
     }, []);
 
     const handleDelete = async (id: string) => {
         try {
-            await axios.delete(`http://localhost:5000/products/deleteProduct/${id}`);
+            await axios.delete(`https://line-coffee.onrender.com/products/deleteProduct/${id}`);
             setProducts(products.filter((product) => product._id !== id));
         } catch (error) {
             console.error("Error deleting product:", error);
@@ -43,7 +43,7 @@ export default function ProductList() {
                     <div key={product._id} className="col-md-6 col-lg-4 mb-4">
                         <div className="card h-100">
                             <img
-                                src={`http://localhost:5000${product.imageUrl}`}
+                                src={`https://line-coffee.onrender.com${product.imageUrl}`}
                                 alt={product.productsName}
                                 className="card-img-top"
                             />

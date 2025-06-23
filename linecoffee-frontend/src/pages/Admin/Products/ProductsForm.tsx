@@ -27,7 +27,7 @@ export default function ProductForm({ onBack }: ProductFormProps) {
         formData.append("inStock", inStock.toString());
 
         try {
-            const res = await axios.post("http://localhost:5000/products/addProduct", formData, {
+            const res = await axios.post("https://line-coffee.onrender.com/products/addProduct", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }

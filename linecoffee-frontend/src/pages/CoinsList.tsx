@@ -32,7 +32,7 @@ function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
 
         try {
             const res = await axios.put(
-                `http://localhost:5000/coins/redeemCoins/${userId}`,
+                `https://line-coffee.onrender.com/coins/redeemCoins/${userId}`,
                 {
                     coinsToRedeem: redeemAmount,
                     reason: "User Redeemed Coins",

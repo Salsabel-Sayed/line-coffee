@@ -24,7 +24,7 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            const response = await axios.post("http://localhost:5000/users/logIn", {
+            const response = await axios.post("https://line-coffee.onrender.com/users/logIn", {
                 email,
                 password,
             });

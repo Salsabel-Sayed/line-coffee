@@ -40,7 +40,7 @@ export default function NotificationsSection() {
 
     const sendBroadcast = async () => {
         try {
-            await axios.post("http://localhost:5000/notifications/adminBroadcast", broadcast, {
+            await axios.post("https://line-coffee.onrender.com/notifications/adminBroadcast", broadcast, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert("Broadcast sent!");
@@ -61,7 +61,7 @@ export default function NotificationsSection() {
     const submitEdit = async () => {
         if (!editingNotification) return;
         try {
-            await axios.patch(`http://localhost:5000/notifications/${editingNotification._id}/edit`, editedData, {
+            await axios.patch(`https://line-coffee.onrender.com/notifications/${editingNotification._id}/edit`, editedData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setShowEditModal(false);
@@ -75,7 +75,7 @@ export default function NotificationsSection() {
 
     const fetchNotifications = async () => {
         try {
-            const { data } = await axios.get("http://localhost:5000/notifications/adminGetNotifications", {
+            const { data } = await axios.get("https://line-coffee.onrender.com/notifications/adminGetNotifications", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNotifications(data.notifications);
@@ -87,7 +87,7 @@ export default function NotificationsSection() {
     const deleteNotification = async (id: string) => {
         if (!confirm("Are you sure you want to delete this notification?")) return;
         try {
-            await axios.delete(`http://localhost:5000/notifications/${id}`, {
+            await axios.delete(`https://line-coffee.onrender.com/notifications/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchNotifications(); // reload
@@ -97,7 +97,7 @@ export default function NotificationsSection() {
     };
     const submitNotifToUser = async () => {
         try {
-            await axios.post("http://localhost:5000/notifications/adminSendNotification", {
+            await axios.post("https://line-coffee.onrender.com/notifications/adminSendNotification", {
                 userId: selectedUserId,
                 title: notif.title,
                 body: notif.message,

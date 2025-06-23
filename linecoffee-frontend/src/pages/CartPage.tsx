@@ -78,7 +78,7 @@ export default function CartPage() {
                                             type="button"
                                             onClick={async () => {
                                                 try {
-                                                    const res = await fetch("http://localhost:5000/coupons/validateCoupon", {
+                                                    const res = await fetch("https://line-coffee.onrender.com/coupons/validateCoupon", {
                                                         method: "POST",
                                                         headers: {
                                                             "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export default function CartPage() {
                                         type="button"
                                         onClick={async () => {
                                             try {
-                                                const res = await fetch("http://localhost:5000/wallets/validateWalletAmount", {
+                                                const res = await fetch("https://line-coffee.onrender.com/wallets/validateWalletAmount", {
                                                     method: "POST",
                                                     headers: {
                                                         "Content-Type": "application/json",

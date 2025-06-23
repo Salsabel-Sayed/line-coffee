@@ -12,7 +12,7 @@ export default function SendReportForm() {
 
         const token = localStorage.getItem("linecoffeeToken");
         try {
-            await axios.post("http://localhost:5000/reports/createReport", {
+            await axios.post("https://line-coffee.onrender.com/reports/createReport", {
                 subject,
                 message,
             }, {

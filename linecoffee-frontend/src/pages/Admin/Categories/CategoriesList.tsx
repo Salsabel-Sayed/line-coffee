@@ -17,7 +17,7 @@ export default function CategoriesList() {
 
     const fetchCategories = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/categories/getAllCategories");
+            const res = await axios.get("https://line-coffee.onrender.com/categories/getAllCategories");
             setCategories(res.data.categories);
         } catch (err) {
             console.error("Error fetching categories:", err);
@@ -33,7 +33,7 @@ export default function CategoriesList() {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Are you sure you want to delete this category?")) return;
         try {
-            await axios.delete(`http://localhost:5000/categories/deleteCategory/${id}`);
+            await axios.delete(`https://line-coffee.onrender.com/categories/deleteCategory/${id}`);
             setCategories(prev => prev.filter(c => c._id !== id));
         } catch (err) {
             console.error("Error deleting category:", err);

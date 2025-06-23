@@ -28,7 +28,7 @@ export default function UsersSection() {
     const token = localStorage.getItem("linecoffeeToken");
 
     const fetchUsers = async () => {
-        const { data } = await axios.get("http://localhost:5000/users/getAllUsers", {
+        const { data } = await axios.get("https://line-coffee.onrender.com/users/getAllUsers", {
             headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(data.users);
@@ -47,7 +47,7 @@ export default function UsersSection() {
 
     const handleDelete = async (userId: string) => {
         if (!confirm("Are you sure?")) return;
-        await axios.delete(`http://localhost:5000/users/adminDeleteUser/${userId}`, {
+        await axios.delete(`https://line-coffee.onrender.com/users/adminDeleteUser/${userId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
         fetchUsers();
@@ -69,7 +69,7 @@ export default function UsersSection() {
         delete dataToSend.wallet;
 
         const {data}= await axios.put(
-            `http://localhost:5000/users/adminUpdateUser/${_id}`,
+            `https://line-coffee.onrender.com/users/adminUpdateUser/${_id}`,
             dataToSend,
             {
                 headers: { Authorization: `Bearer ${token}` },
@@ -89,7 +89,7 @@ export default function UsersSection() {
     const handleSubmitNotif = async () => {
         if (!selectedUser) return;
         await axios.post(
-            "http://localhost:5000/notifications/adminSendNotification",
+            "https://line-coffee.onrender.com/notifications/adminSendNotification",
             {
                 userId: selectedUser._id,
                 title: "رسالة من الإدارة",

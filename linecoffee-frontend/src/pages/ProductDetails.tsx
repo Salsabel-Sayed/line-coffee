@@ -84,7 +84,7 @@ export default function ProductDetails() {
 
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/products/getProductById/${productId}`);
+        const res = await axios.get(`https://line-coffee.onrender.com/products/getProductById/${productId}`);
         setProduct(res.data.product);
         console.log("res.data",res.data.product);
         
@@ -95,7 +95,7 @@ export default function ProductDetails() {
 
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/reviews/getProductReviews/${productId}`);
+        const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`);
         setReviews(res.data);
       } catch (err) {
         console.error("Error fetching reviews", err);
@@ -114,14 +114,14 @@ export default function ProductDetails() {
 
     try {
       await axios.post(
-        `http://localhost:5000/reviews/addReview`,
+        `https://line-coffee.onrender.com/reviews/addReview`,
         { productId , rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Review submitted!");
       setRating(0);
       setComment("");
-      const res = await axios.get(`http://localhost:5000/reviews/getProductReviews/${productId}`, {
+      const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReviews(res.data);

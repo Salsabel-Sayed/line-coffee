@@ -42,7 +42,7 @@ export default function Register() {
         setIsLoading(true); 
 
         try {
-            await axios.post("http://localhost:5000/users/addUser", {
+            await axios.post("https://line-coffee.onrender.com/users/addUser", {
                 userName,
                 email,
                 password,

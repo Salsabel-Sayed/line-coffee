@@ -48,7 +48,7 @@ export default function OrdersSection() {
     const token = localStorage.getItem("linecoffeeToken");
 
     const fetchOrders = async () => {
-        const { data } = await axios.get("http://localhost:5000/orders/getAllOrders", {
+        const { data } = await axios.get("https://line-coffee.onrender.com/orders/getAllOrders", {
             headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(data.orders);
@@ -58,14 +58,14 @@ export default function OrdersSection() {
 
     const cancelOrder = async (id: string) => {
         if (!confirm("Are you sure you want to cancel this order?")) return;
-        await axios.delete(`http://localhost:5000/orders/cancelOrder/${id}`, {
+        await axios.delete(`https://line-coffee.onrender.com/orders/cancelOrder/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         fetchOrders();
     };
 
     const updateStatus = async (id: string, newStatus: string) => {
-        await axios.put(`http://localhost:5000/orders/updateOrderStatus/${id}`, {
+        await axios.put(`https://line-coffee.onrender.com/orders/updateOrderStatus/${id}`, {
             status: newStatus,
         }, {
             headers: { Authorization: `Bearer ${token}` },
@@ -104,7 +104,7 @@ export default function OrdersSection() {
             walletAmount: editWallet,
         };
 
-        await axios.put(`http://localhost:5000/orders/adminUpdateOrder/${currentOrder._id}`, body, {
+        await axios.put(`https://line-coffee.onrender.com/orders/adminUpdateOrder/${currentOrder._id}`, body, {
             headers: { Authorization: `Bearer ${token}` },
         });
 

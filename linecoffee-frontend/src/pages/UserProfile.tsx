@@ -38,7 +38,7 @@ function UserProfile() {
         Authorization: `Bearer ${token}`,
       };
 
-      const res = await axios.get(`http://localhost:5000/users/finduserInfo/${userId}`, { headers });
+      const res = await axios.get(`https://line-coffee.onrender.com/users/finduserInfo/${userId}`, { headers });
       const user = res.data.user;
 
       setUserData({
@@ -48,21 +48,21 @@ function UserProfile() {
         email: user.email || "",
       });
 
-      const coinsRes = await axios.get(`http://localhost:5000/coins/getUserCoins/${userId}`, { headers });
+      const coinsRes = await axios.get(`https://line-coffee.onrender.com/coins/getUserCoins/${userId}`, { headers });
       setCoins({
         coins: coinsRes.data.coins || 0,
         logs: coinsRes.data.logs || [],
       });
 
-      const walletRes = await axios.get(`http://localhost:5000/wallets/getUserWallet/${userId}`, { headers });
+      const walletRes = await axios.get(`https://line-coffee.onrender.com/wallets/getUserWallet/${userId}`, { headers });
       setWallet(walletRes.data);
 
       // 👇 دي الإضافة الجديدة
-      const notiRes = await axios.get("http://localhost:5000/notifications/getUserNotifications", { headers });
+      const notiRes = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { headers });
       setNotifications(notiRes.data.notifications || []);
 
       // Get User Orders
-      const ordersRes = await axios.get("http://localhost:5000/orders/myOrders", { headers });
+      const ordersRes = await axios.get("https://line-coffee.onrender.com/orders/myOrders", { headers });
       console.log("ordersRes",ordersRes);
       
       setUserOrders(ordersRes.data.orders || []);
