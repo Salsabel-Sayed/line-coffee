@@ -37,7 +37,8 @@ const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     const allowedOrigins = [
       'http://localhost:5173',
-      'https://line-coffee-ik9k.vercel.app',
+      'https://line-coffee-ik9k.vercel.app', // ممكن تمسحيه لو مش محتاجاه
+      'https://line-coffee.vercel.app',
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -49,7 +50,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // ✅ دلوقتي corsOptions معروف هنا
+app.options('*', cors(corsOptions));
 
 
 
