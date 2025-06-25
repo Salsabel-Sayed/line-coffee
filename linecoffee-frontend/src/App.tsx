@@ -21,6 +21,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ProductForm from './pages/Admin/Products/ProductsForm'
 import AdminProductsDash from './pages/Admin/Products/AdminProductDash'
 import PaymentsSection from './pages/Admin/Payments/PaymentsSection'
+import NotificationWrapper from './pages/NotificationWarapper'
 
 
 
@@ -28,7 +29,7 @@ import PaymentsSection from './pages/Admin/Payments/PaymentsSection'
 function App() {
   return (
     <>
-    
+     
       <ToastContainer />
         <LanguageProvider>
         <WishListProvider>
@@ -42,7 +43,11 @@ function App() {
               {/* <Route path="/products" element={<ProductsList />} /> */}
               <Route path="/products" element={<ProductsPage />} />
                   <Route path="/product/:productId" element={<ProductDetails />} />
-              <Route path="/profile/" element={<UserProfile />} />
+                  <Route path="/profile/" element={<UserProfile />} />
+                  <Route path="/profile/notifications" element={<NotificationWrapper />} />
+
+
+
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
                   <Route path="/wishlist" element={<WishListPage />} />
@@ -71,6 +76,7 @@ function App() {
           </CartProvider>
         </WishListProvider>
         </LanguageProvider>
+      
       
       
     </>
