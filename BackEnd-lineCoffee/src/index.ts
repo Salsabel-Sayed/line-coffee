@@ -22,6 +22,10 @@ import reportsRouter from "./modules/Reports/Reports.routes";
 
 
 
+import cookieParser from "cookie-parser"; // ✅ الصحيح
+
+
+
 
 
 
@@ -51,6 +55,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+
+app.use(cookieParser());
+
 
 
 

@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { AuthenticatedRequest } from "../../types/custom";
 import { IWallet, Wallet } from "../Wallet/wallet.model";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Coins } from "../Coins/coins.model";
 
 
@@ -22,30 +22,98 @@ dotenv.config();
 
 
 //? register user
-export const registerUser = catchError(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const registerUser = catchError(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // تأكد إن req.body متوافق مع واجهة المستخدم IUser
       const addUser: IUser = await User.create(req.body);
+
       const newWallet: IWallet = await Wallet.create({
         userId: addUser._id,
         balance: 0,
         transactions: [],
       });
+
       const newCoins = await Coins.create({
         userId: addUser._id,
         coins: 0,
       });
-      console.log("Wallet created:", newWallet);
-      addUser.wallet = newWallet._id as Types.ObjectId;;
+
+      addUser.wallet = newWallet._id as Types.ObjectId;
       addUser.coins = newCoins._id as Types.ObjectId;
       await addUser.save();
 
+      // ✅ هنا بنديله توكن زي login بالظبط
+      const secretKey = process.env.PASSWORD_TOKEN || "thisisLineCoffeeProj";
+      const token = jwt.sign(
+        {
+          userId: addUser._id,
+          email: addUser.email,
+          role: addUser.role,
+        },
+        secretKey,
+        { expiresIn: "7d" }
+      );
+      const origin = req.headers.origin || "";
+      const isLocal = origin.includes("localhost");
 
-      res.status(201).json({ message: "User added successfully", addUser });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: !isLocal, // ← false في اللوكال بس
+        sameSite: isLocal ? "lax" : "none", // ← none للـ production فقط
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      
+     
+
+
+      res
+        .status(201)
+        .json({ message: "User registered and logged in", user: addUser });
     } catch (error) {
-        next(error); 
+      next(error);
     }
-});
+  }
+);
+//* ////////////////////////////////////////////////////////////////////////////////////////////////////
+//? log in user
+export const loginUser = catchError(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { email, password } = req.body;
+
+    const userExist = await User.findOne({ email });
+    if (!userExist) return next(new AppError("User not found", 404));
+
+    const isPasswordValid = await bcrypt.compare(password, userExist.password);
+    if (!isPasswordValid) return next(new AppError("Invalid password!", 404));
+
+    const secretKey = process.env.PASSWORD_TOKEN || "thisisLineCoffeeProj";
+    const token = jwt.sign(
+      {
+        userId: userExist._id,
+        email: userExist.email,
+        role: userExist.role,
+      },
+      secretKey,
+      { expiresIn: "7d" }
+    );
+    const origin = req.headers.origin || "";
+    const isLocal = origin.includes("localhost");
+
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: !isLocal, // ← false في اللوكال بس
+      sameSite: isLocal ? "lax" : "none", // ← none للـ production فقط
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    console.log("🍪 Cookies at login:", req.cookies);
+    console.log("📥 Body at login:", req.body);
+
+    res.json({ message: "Signed in successfully" });
+  }
+);
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
 //? create User By Admin
 export const createUserByAdmin = catchError(
@@ -93,38 +161,8 @@ export const createUserByAdmin = catchError(
 );
 
 
-//* ////////////////////////////////////////////////////////////////////////////////////////////////////
-//? log in user
-export const loginUser = catchError(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { email, password } = req.body;
-    console.log(email , password);
 
 
-    const userExist = await User.findOne({ email });
-    if (!userExist) return next(new AppError("User not found", 404));
-
-    const isPasswordValid = await bcrypt.compare(password, userExist.password);
-    if (!isPasswordValid) return next(new AppError("Invalid password!", 404));
-
-    if (userExist.email !== email) return next(new AppError("Invalid email or password!", 404));
-
-    const activeState = await User.updateOne({ _id: userExist._id }, { logging: true, firstLoginCouponUsed: true }  );
-    console.log("activeState", activeState);
-
-    const secretKey = process.env.PASSWORD_TOKEN || "thisisLineCoffeeProj";
-    let authorization = jwt.sign(
-      {
-        userId: userExist._id,
-        email: userExist.email,
-        password: userExist.password,
-        role: userExist.role,
-        logging: userExist.logging,
-      },
-      secretKey
-    );
-    await userExist.save();
-    res.json({ message: "Signed in successfully", authorization });
-});
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
 //? log out user
 export const logoutUser = catchError(async (req: AuthenticatedRequest, res: Response, next: NextFunction):Promise<void>=>{
@@ -136,6 +174,16 @@ export const logoutUser = catchError(async (req: AuthenticatedRequest, res: Resp
         return next(new AppError("You are not logged in", 401))
     }
     const user = await User.findByIdAndUpdate(userId, { logging: false }, { new: true });
+    const origin = req.headers.origin || "";
+    const isLocal = origin.includes("localhost");
+
+
+    res.cookie("token", {
+      httpOnly: true,
+      secure: !isLocal, // ← false في اللوكال بس
+      sameSite: isLocal ? "lax" : "none", // ← none للـ production فقط
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.json({ message: "Logged out successfully",user });
 })
 
@@ -232,44 +280,66 @@ export const deleteUser = catchError(async (req:AuthenticatedRequest, res: Respo
 
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
 //? get user profile
-export const finduserInfo = catchError(async(req:AuthenticatedRequest, res:Response, next:NextFunction):Promise<void>=>{
-    const userId = req.user?.userId;
-    const userIdFromParams = req.params.id;
-    console.log("userId",userId);
-    console.log("userIdFromParams", userIdFromParams);
+// export const finduserInfo = catchError(async(req:AuthenticatedRequest, res:Response, next:NextFunction):Promise<void>=>{
+//     const userId = req.user?.userId;
+//     const userIdFromParams = req.params.id;
+//     console.log("userId",userId);
+//     console.log("userIdFromParams", userIdFromParams);
     
 
-    if (userId !== userIdFromParams) {
-      return next(new AppError("Unauthorized access!", 403));
-    }
-    if (!userId) {
-        return next(new AppError("Unauthorized access!", 401));
-    }
-    if (!userIdFromParams) {
-      return next(new AppError("params Unauthorized access!", 401));
-    }
-    console.log("userId", userId);
-    const findUser = await User.findById(userId);
-    if (!findUser) {
-        return next(new AppError("User not found!", 404));
-    }
-    console.log('findUser', findUser);
-    res.json({
-      message: "Login successful",
-      user: {
+//     if (userId !== userIdFromParams) {
+//       return next(new AppError("Unauthorized access!", 403));
+//     }
+//     if (!userId) {
+//         return next(new AppError("Unauthorized access!", 401));
+//     }
+//     if (!userIdFromParams) {
+//       return next(new AppError("params Unauthorized access!", 401));
+//     }
+//     console.log("userId", userId);
+//     const findUser = await User.findById(userId);
+//     if (!findUser) {
+//         return next(new AppError("User not found!", 404));
+//     }
+//     console.log('findUser', findUser);
+//     res.json({
+//       message: "Login successful",
+//       user: {
         
-        _id: findUser._id,
-        email: findUser.email,
-        userName: findUser.userName,
-        userPhone: findUser.userPhone,
-        wallet: findUser.wallet,
-        coins: findUser.coins,
-        address: findUser.address,
-        // أي حاجة تانية محتاجاها
-      },
-    });
+//         _id: findUser._id,
+//         email: findUser.email,
+//         userName: findUser.userName,
+//         userPhone: findUser.userPhone,
+//         wallet: findUser.wallet,
+//         coins: findUser.coins,
+//         address: findUser.address,
+//         // أي حاجة تانية محتاجاها
+//       },
+//     });
       
-})
+// })
+// ✅ Get Current User Info from token only
+export const getMe = catchError(async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  const userId = req.user?.userId;
+  if (!userId) return next(new AppError("Unauthorized access!", 401));
+
+  const findUser = await User.findById(userId);
+  if (!findUser) return next(new AppError("User not found!", 404));
+
+  res.json({
+    message: "Login successful",
+    user: {
+      _id: findUser._id,
+      email: findUser.email,
+      userName: findUser.userName,
+      userPhone: findUser.userPhone,
+      wallet: findUser.wallet,
+      coins: findUser.coins,
+      address: findUser.address,
+    },
+  });
+});
+
 
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
 //? get all users profile(admin)
