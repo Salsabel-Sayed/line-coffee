@@ -10,14 +10,18 @@ export default function SendReportForm() {
         e.preventDefault();
         if (!subject || !message) return toast.error("Please fill in all fields");
 
-        const token = localStorage.getItem("linecoffeeToken");
         try {
-            await axios.post("https://line-coffee.onrender.com/reports/createReport", {
-                subject,
-                message,
-            }, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.post(
+                "https://line-coffee.onrender.com/reports/createReport",
+                {
+                    subject,
+                    message,
+                },
+                {
+                    withCredentials: true,
+                }
+            );
+              
 
             toast.success("Report sent to admin ✅");
             setSubject("");

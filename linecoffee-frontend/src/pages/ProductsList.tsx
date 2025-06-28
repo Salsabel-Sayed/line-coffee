@@ -31,8 +31,8 @@ function ProductsList({ products }: ProductsListProps) {
     const navigate = useNavigate();
 
     const handleAddToCart = (product: Product) => {
-        const token = localStorage.getItem("linecoffeeToken");
-        if (!token) {
+        const isLoggedIn = document.cookie.includes("token=");
+        if (!isLoggedIn) {
             toast.warning("برجاء تسجيل الدخول أولاً");
             return navigate("/login");
         }
@@ -40,16 +40,18 @@ function ProductsList({ products }: ProductsListProps) {
         addToCart({ ...product, quantity: 1 });
     };
     
+    
 
     const handleToggleWish = (product: Product) => {
-        const token = localStorage.getItem("linecoffeeToken");
-        if (!token) {
+        const isLoggedIn = document.cookie.includes("token=");
+        if (!isLoggedIn) {
             toast.warning("برجاء تسجيل الدخول أولاً");
             return navigate("/login");
         }
 
         toggleWish(product);
     };
+    
     
 
     return (

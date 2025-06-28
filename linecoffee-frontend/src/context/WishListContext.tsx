@@ -1,6 +1,8 @@
+// WishListContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
+// Define product types
 type Product = {
     id: string;
     name: string;
@@ -9,6 +11,7 @@ type Product = {
     description?: string;
     averageRating?: number;
 };
+
 type RawProductFromBackend = {
     _id: string;
     productsName: string;
@@ -17,53 +20,64 @@ type RawProductFromBackend = {
     averageRating?: number;
     productsDescription?: string;
 };
-  
 
 type WishListContextType = {
     wishList: Product[];
     toggleWish: (product: Product) => void;
 };
 
+// Create context
 const WishListContext = createContext<WishListContextType>({
     wishList: [],
     toggleWish: () => { },
 });
 
+// Provider
 export const WishListProvider = ({ children }: { children: React.ReactNode }) => {
     const [wishList, setWishList] = useState<Product[]>([]);
-    const userId = localStorage.getItem("userId");
 
     // ✅ Load wishlist from backend
     useEffect(() => {
-        if (!userId) return;
-        axios.get(`http://localhost:5000/wishList/wishlist/${userId}`).then((res) => {
-            const mapped = res.data.wishlist.map((p: RawProductFromBackend) => ({
-                id: p._id,
-                name: p.productsName,
-                price: p.price,
-                image: p.imageUrl,
-                averageRating: p.averageRating,
-                description: p.productsDescription,
-            }));
-            setWishList(mapped);
-        });
-    }, [userId]);
+        axios
+            .get("https://line-coffee.onrender.com/wishList/wishlist/me", {
+                withCredentials: true,
+            })
+            .then((res) => {
+                const mapped = res.data.wishlist.map((p: RawProductFromBackend) => ({
+                    id: p._id,
+                    name: p.productsName,
+                    price: p.price,
+                    image: p.imageUrl,
+                    averageRating: p.averageRating,
+                    description: p.productsDescription,
+                }));
+                setWishList(mapped);
+            })
+            .catch((err) => {
+                console.log("🟡 Not logged in or failed to fetch wishlist",err);
+            });
+    }, []);
 
-    // ✅ Toggle wish from backend
+    // ✅ Toggle wish product
     const toggleWish = async (product: Product) => {
-        if (!userId) return;
+        try {
+            await axios.post(
+                "https://line-coffee.onrender.com/wishList/toggleWishlist",
+                {
+                    productId: product.id,
+                },
+                { withCredentials: true }
+            );
 
-        const inList = wishList.find((p) => p.id === product.id);
+            const exists = wishList.find((p) => p.id === product.id);
 
-        await axios.post("http://localhost:5000/wishList/toggleWishlist", {
-            userId,
-            productId: product.id,
-        });
-
-        if (inList) {
-            setWishList((prev) => prev.filter((p) => p.id !== product.id));
-        } else {
-            setWishList((prev) => [...prev, product]);
+            if (exists) {
+                setWishList((prev) => prev.filter((p) => p.id !== product.id));
+            } else {
+                setWishList((prev) => [...prev, product]);
+            }
+        } catch (err) {
+            console.error("❌ Error toggling wishlist item:", err);
         }
     };
 
@@ -74,4 +88,5 @@ export const WishListProvider = ({ children }: { children: React.ReactNode }) =>
     );
 };
 
+// Hook
 export const useWishList = () => useContext(WishListContext);

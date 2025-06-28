@@ -30,16 +30,15 @@ function UserProfile() {
 
   const fetchUserData = async () => {
     try {
-      const token = localStorage.getItem("linecoffeeToken");
-      const userId = localStorage.getItem("userId");
-      if (!token) return toast.error("User not logged in");
-
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const res = await axios.get(`https://line-coffee.onrender.com/users/finduserInfo/${userId}`, { headers });
+      
+      const res = await axios.get("https://line-coffee.onrender.com/users/getMe", {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       const user = res.data.user;
+      const userId = user._id;
 
       setUserData({
         name: user.userName || "",
@@ -48,21 +47,21 @@ function UserProfile() {
         email: user.email || "",
       });
 
-      const coinsRes = await axios.get(`https://line-coffee.onrender.com/coins/getUserCoins/${userId}`, { headers });
+      const coinsRes = await axios.get(`https://line-coffee.onrender.com/coins/getUserCoins/${userId}`, { withCredentials: true });
       setCoins({
         coins: coinsRes.data.coins || 0,
         logs: coinsRes.data.logs || [],
       });
 
-      const walletRes = await axios.get(`https://line-coffee.onrender.com/wallets/getUserWallet/${userId}`, { headers });
+      const walletRes = await axios.get(`https://line-coffee.onrender.com/wallets/getUserWallet/${userId}`, { withCredentials: true });
       setWallet(walletRes.data);
 
       // 👇 دي الإضافة الجديدة
-      const notiRes = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { headers });
+      const notiRes = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { withCredentials: true });
       setNotifications(notiRes.data.notifications || []);
 
       // Get User Orders
-      const ordersRes = await axios.get("https://line-coffee.onrender.com/orders/myOrders", { headers });
+      const ordersRes = await axios.get("https://line-coffee.onrender.com/orders/myOrders", { withCredentials: true });
       console.log("ordersRes",ordersRes);
       
       setUserOrders(ordersRes.data.orders || []);
@@ -118,8 +117,9 @@ function UserProfile() {
                 </button>
 
                 <button className="btn btn-danger w-100" onClick={() => {
-                  localStorage.removeItem("linecoffeeToken");
+                   axios.post("https://line-coffee.onrender.com/users/logout", {}, { withCredentials: true });
                   window.location.href = "/login";
+                  
                 }}>🚪 Sign out</button>
               </div>
             </div>

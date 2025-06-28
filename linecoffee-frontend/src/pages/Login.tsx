@@ -3,14 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
-import {jwtDecode} from 'jwt-decode';
 
-interface JwtPayload {
-    userId: string;
-    email: string;
-    role: string;
-    logging?: boolean;
-}
   
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -24,29 +17,17 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            const response = await axios.post("https://line-coffee.onrender.com/users/logIn", {
+             await axios.post("https://line-coffee.onrender.com/users/logIn", {
                 email,
                 password,
             }, { withCredentials: true, });
 
-            const { authorization, message } = response.data;
-            // ✅ فك شفرة التوكن
-            const decodedToken = jwtDecode<JwtPayload>(authorization);
-            console.log("decodedToken", decodedToken);
-            localStorage.setItem("userId", decodedToken.userId);
-            localStorage.setItem("user", JSON.stringify({
-                email: decodedToken.email,
-                role: decodedToken.role
-              }));
             
 
-            // حفظ التوكن في localStorage
-            localStorage.setItem("linecoffeeToken", authorization);
-
-            toast.success(message || "Logged in successfully!");
+            toast.success("Logged in successfully!");
             setTimeout(() => {
-                window.location.reload(); 
-                navigate("/"); 
+                navigate("/");
+                window.location.reload();
             }, 2000);
 
         } catch (error: unknown) {

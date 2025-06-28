@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import  type { Notification } from "../../Types/notificationTypes";
+import axios from "axios";
 
 interface NotificationContextType {
     notifications: Notification[];
@@ -15,15 +16,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
     const fetchNotifications = async () => {
         try {
-            const token = localStorage.getItem("linecoffeeToken");
-            const res = await fetch("https://line-coffee.onrender.com/getUserNotifications", {
-                credentials: "include",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+            
+            const res = await axios.get("https://line-coffee.onrender.com/getUserNotifications", {
+                withCredentials: true,
             });
 
-            const data = await res.json();
+            const data = await res.data;
             setNotifications(data.notifications || []);
             const unread = data.notifications?.filter((n: Notification) => !n.isRead).length || 0;
             setUnreadCount(unread);

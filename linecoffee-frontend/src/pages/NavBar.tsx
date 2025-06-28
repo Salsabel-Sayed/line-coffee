@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCartShopping, faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { useWishList } from "../context/WishListContext";
 import { useCart } from "../context/CartContext";
+import axios from "axios";
 
 
 
@@ -45,14 +46,11 @@ export default function MainNavbar() {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem("linecoffeeToken");
-      if (!token) return;
+      
 
-      const res = await fetch("https://line-coffee.onrender.com/notifications/getUserNotifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { withCredentials: true })
 
-      const data = await res.json();
+      const data = await res.data;
       const all = data.notifications || [];
       setNotifications(all);
 
@@ -93,20 +91,33 @@ export default function MainNavbar() {
       return () => window.removeEventListener('scroll', handleScroll);
     }, []);
     
-    useEffect(() => {
-      const token = localStorage.getItem("linecoffeeToken");
-      const userInfo = localStorage.getItem("user");
-
-      if (token && userInfo) {
-        setUser(JSON.parse(userInfo));
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("https://line-coffee.onrender.com/users/getMe", {
+          withCredentials: true,
+        });
+        setUser(res.data.user);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+        setUser(null);
       }
-    }, []);
+    };
 
-    const handleLogout = () => {
-      localStorage.clear();
+    fetchUser();
+  }, []);
+    
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("https://line-coffee.onrender.com/users/logout", {}, { withCredentials: true });
       setUser(null);
       navigate("/login");
-    };
+    } catch (err) {
+      console.error("Failed to logout", err);
+    }
+  };
+  
 
     const isAdminAccount = user?.email === "admin@gmail.com";
     return (

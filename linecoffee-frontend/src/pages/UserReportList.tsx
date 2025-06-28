@@ -13,12 +13,11 @@ type Report = {
 export default function UserReportsSection() {
     const [reports, setReports] = useState<Report[]>([]);
 
-    const token = localStorage.getItem("linecoffeeToken");
 
     const fetchReports = async () => {
         try {
             const { data } = await axios.get("https://line-coffee.onrender.com/reports/getAllReports", {
-                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
             });
             setReports(data.reports || []);
         } catch (error) {
@@ -29,7 +28,7 @@ export default function UserReportsSection() {
     const markAsRead = async (id: string) => {
         try {
             await axios.put(`https://line-coffee.onrender.com/reports/markReportAsRead/${id}`, {}, {
-                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true,
             });
             fetchReports();
         } catch (err) {

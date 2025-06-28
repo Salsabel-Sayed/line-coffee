@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 import { useEffect, useState } from "react";
+import axios from "axios";
 // const { cartItems, removeFromCart, updateQuantity } = useCart(); // ✅ كده تمام
 
 
@@ -78,15 +79,13 @@ export default function CartPage() {
                                             type="button"
                                             onClick={async () => {
                                                 try {
-                                                    const res = await fetch("https://line-coffee.onrender.com/coupons/validateCoupon", {
-                                                        method: "POST",
-                                                        headers: {
-                                                            "Content-Type": "application/json",
-                                                            Authorization: `Bearer ${localStorage.getItem("linecoffeeToken")}`,
-                                                          },
-                                                        body: JSON.stringify({ couponCode: coupon, totalAmount: subtotal }),
-                                                    });
-                                                    const data = await res.json();
+                                                    const res =await axios.post(
+                                                        "https://line-coffee.onrender.com/coupons/validateCoupon",
+                                                        { coupon }, // ده جسم الطلب (body)
+                                                        { withCredentials: true } // هنا نحط الكوكيز
+                                                    );
+                                                      ;
+                                                    const data  = res.data.user;
                                                     if (data.valid) {
                                                         setCouponDiscount(data.discountValue);
                                                     } else {
@@ -122,15 +121,14 @@ export default function CartPage() {
                                         type="button"
                                         onClick={async () => {
                                             try {
-                                                const res = await fetch("https://line-coffee.onrender.com/wallets/validateWalletAmount", {
-                                                    method: "POST",
-                                                    headers: {
-                                                        "Content-Type": "application/json",
-                                                        Authorization: `Bearer ${localStorage.getItem("linecoffeeToken")}`,
-                                                      },
+                                                const res = await axios.post("https://line-coffee.onrender.com/wallets/validateWalletAmount", {
+                                                     withCredentials: true 
+,
                                                     body: JSON.stringify({ walletAmount, totalAmount: subtotal }),
+                                                    credentials: "include", // دي مهمة علشان تبعتي الكوكي
                                                 });
-                                                const data = await res.json();
+                                                  
+                                                const data = await res.data;
                                                 if (data.valid) {
                                                     setWalletValid(true);
                                                     setWalletError("");

@@ -16,17 +16,11 @@ function NotificationsList({ notifications, onRefresh }: NotificationsProps) {
         : notifications.filter(n => n.type === filter);
 
     const handleMarkAsRead = async (notificationId: string) => {
-        const token = localStorage.getItem("linecoffeeToken");
-
-        if (!token) return toast.error("User not logged in");
 
         try {
             await axios.put(
                 `https://line-coffee.onrender.com/notifications/markReportAsRead/${notificationId}`,
-                {},
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+                {},{ withCredentials: true },
             );
 
             toast.success("Marked as read");

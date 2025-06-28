@@ -2,6 +2,7 @@ import { useCart } from "../context/CartContext";
 import { useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 export default function ConfirmOrderPage() {
     const { cartItems, clearCart } = useCart();
@@ -27,12 +28,7 @@ export default function ConfirmOrderPage() {
 
         try {
             // 🟨 Create Order
-            const createRes = await fetch("https://line-coffee.onrender.com/orders/createOrder", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("linecoffeeToken")}`,
-                },
+            const createRes = await axios.post("https://line-coffee.onrender.com/orders/createOrder", {
                 body: JSON.stringify({
                     items: cartItems.map(item => ({
                         product: item.id,
@@ -41,27 +37,25 @@ export default function ConfirmOrderPage() {
                     couponCode,
                     walletAmount,
                 }),
-            });
+                
+            },{ withCredentials: true });
 
-            const created = await createRes.json();
+            const created = await createRes.data;
             if (!created.success) throw new Error("Order creation failed");
 
             const orderId = created.order._id;
 
             // 🟦 Complete Order
-            const completeRes = await fetch(`https://line-coffee.onrender.com/orders/completeOrder/${orderId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("linecoffeeToken")}`,
-                },
+            const completeRes = await axios.put(`https://line-coffee.onrender.com/orders/completeOrder/${orderId}`, {
+             
+                withCredentials: true,
                 body: JSON.stringify({
                     paymentMethod: selectedPayment,
                     walletAmount,
                 }),
             });
 
-            const completeData = await completeRes.json();
+            const completeData = await completeRes.data;
             console.log("✅ Order completed", completeData);
 
             setConfirmed(true);

@@ -22,14 +22,8 @@ function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
     const [redeemAmount, setRedeemAmount] = useState(0);
 
     const handleRedeem = async () => {
-        const token = localStorage.getItem("linecoffeeToken");
         const userId = localStorage.getItem("userId");
-
-        console.log("token before request:", token);
         console.log("userId before request:", userId);
-
-        if (!token) return toast.error("User not logged in");
-
         try {
             const res = await axios.put(
                 `https://line-coffee.onrender.com/coins/redeemCoins/${userId}`,
@@ -37,11 +31,9 @@ function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
                     coinsToRedeem: redeemAmount,
                     reason: "User Redeemed Coins",
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+                
+                { withCredentials: true },
+                
             );
 
             console.log("Request sent!");

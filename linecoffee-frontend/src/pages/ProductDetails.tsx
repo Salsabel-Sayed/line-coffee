@@ -84,7 +84,8 @@ export default function ProductDetails() {
 
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://line-coffee.onrender.com/products/getProductById/${productId}`);
+        const res = await axios.get(`https://line-coffee.onrender.com/products/getProductById/${productId}`, { withCredentials: true }
+        );
         setProduct(res.data.product);
         console.log("res.data",res.data.product);
         
@@ -95,7 +96,8 @@ export default function ProductDetails() {
 
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`);
+        const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, { withCredentials: true }
+        );
         setReviews(res.data);
       } catch (err) {
         console.error("Error fetching reviews", err);
@@ -109,21 +111,19 @@ export default function ProductDetails() {
   }, [productId]);
 
   const handleReviewSubmit = async () => {
-    const token = localStorage.getItem("linecoffeeToken");
-    if (!token) return navigate("/login");
+   
 
     try {
       await axios.post(
         `https://line-coffee.onrender.com/reviews/addReview`,
         { productId , rating, comment },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true },
       );
       alert("Review submitted!");
       setRating(0);
       setComment("");
-      const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, 
+        { withCredentials: true });
       setReviews(res.data);
     } catch (error: unknown) {
       const err = error as AxiosError<{ message: string }>;
@@ -131,48 +131,53 @@ export default function ProductDetails() {
     }
   };
   const handleAddToCart = () => {
-    const token = localStorage.getItem("linecoffeeToken");
-    if (!token) {
-      toast.warning("برجاء تسجيل الدخول أولاً");
+    axios.get("https://line-coffee.onrender.com/users/getMe", { withCredentials: true })
+      .then(() => {
+        if (product) {
+          const formattedProduct = {
+            id: product._id,
+            name: product.productsName,
+            image: product.imageUrl || "",
+            price: product.price,
+            quantity: 1
+          };
+
+          addToCart(formattedProduct);
+          toast.success("تمت الإضافة إلى السلة!");
+        }
+      })
+      .catch(() => {
+        toast.warning("برجاء تسجيل الدخول أولاً");
+        navigate("/login");
+      });
+
+    
+  };
+
+  const handleToggleWish = async () => {
+    try {
+      // مش هتحتاجي token من localStorage خالص
+      const res = await axios.post("https://line-coffee.onrender.com/wishlist/toggleWishlist", { productId }, {
+        withCredentials: true
+      });
       
-      return navigate("/login");
-    }
-
-    if (product) {
-      const formattedProduct = {
-        id: product._id,
-        name: product.productsName,
-        image: product.imageUrl || "",
-        price: product.price,
-        quantity: 1
-      };
-
-      addToCart(formattedProduct);
-      toast.success("تمت الإضافة إلى السلة!");
-    }
+    console.log("res wishlist",res);
     
-  };
 
-  const handleToggleWish = () => {
-    const token = localStorage.getItem("linecoffeeToken");
-    if (!token) {
-      toast.warning("برجاء تسجيل الدخول أولاً");
-      return navigate("/login");
-    }
 
-    if (product) {
-      const formattedProduct = {
-        id: product._id,
-        name: product.productsName,
-        image: product.imageUrl || "",
-        price: product.price
-      };
+      toggleWish({
+        id: product?._id || "",
+        name: product?.productsName || "",
+        image: product?.imageUrl || "",
+        price: product?.price || 0,
+      });
 
-      toggleWish(formattedProduct);
       toast.success("تمت الإضافة/الإزالة من المفضلة");
+    } catch (error) {
+      toast.error(`${error}`);
     }
-    
   };
+  
   
 
   if (!product) return <div className="container mt-5">Product not found!</div>;
