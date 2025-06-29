@@ -1,10 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+import { ENCRYPTION_KEY, TOKEN_KEY } from "../utils/authUtils";
 
 function getDecryptedToken() {
     const encrypted = localStorage.getItem(TOKEN_KEY);

@@ -26,14 +26,20 @@ function EditeUserForm({ userData, onSave }: Props) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { password, ...rest } = formData;
+    const updatedData = {
+      name: formData.name.trim() || userData.name,
+      address: formData.address.trim() || userData.address,
+      phone: formData.phone.trim() || userData.phone,
+      email: formData.email.trim() || userData.email,
+    };
 
-    if (password.trim()) {
-      onSave({ ...rest, password });
+    if (formData.password.trim()) {
+      onSave({ ...updatedData, password: formData.password });
     } else {
-      onSave(rest);
+      onSave(updatedData);
     }
   };
+  
 
   return (
     <div className="edit-user-form p-4 bg-light rounded shadow">

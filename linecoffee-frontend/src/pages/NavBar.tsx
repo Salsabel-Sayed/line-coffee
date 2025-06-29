@@ -1,4 +1,3 @@
-
 import {  Container, Nav, Navbar } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -6,14 +5,12 @@ import { useLanguage } from "../context/LangugeContext";
 import i18n from "../i18n";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { faBell, faCartShopping, faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { useWishList } from "../context/WishListContext";
 import { useCart } from "../context/CartContext";
-
-
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+import CryptoJS from "crypto-js";
+import { clearToken } from "../utils/authUtils";
+import { ENCRYPTION_KEY, TOKEN_KEY } from "../utils/authUtils";
 interface user {
   email: string;
   name: string;
@@ -106,7 +103,8 @@ export default function MainNavbar() {
     }, []);
 
     const handleLogout = () => {
-      localStorage.clear();
+      clearToken();
+      localStorage.removeItem("userId");
       setUser(null);
       navigate("/login");
     };

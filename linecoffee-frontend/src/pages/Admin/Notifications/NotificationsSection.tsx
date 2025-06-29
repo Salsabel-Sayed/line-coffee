@@ -1,19 +1,9 @@
-// src/pages/admin/sections/NotificationsSection.tsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button, Form, Modal } from 'react-bootstrap';
-// import type { Notification } from "../../Types/notificationTypes"; 
+import { getDecryptedToken } from "../../../utils/authUtils";
 
 
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
-
-function getDecryptedToken() {
-    const encrypted = localStorage.getItem(TOKEN_KEY);
-    if (!encrypted) return null;
-    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
-    return bytes.toString(CryptoJS.enc.Utf8);
-}
 type Notification = {
     _id: string;
     user?: { email: string; _id: string }; // ✅ ضفنا _id

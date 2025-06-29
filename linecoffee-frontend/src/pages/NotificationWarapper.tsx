@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import NotificationsList from "./NotificationList";
 import type { Notification } from "../../Types/notificationTypes";
 import CryptoJS from "crypto-js";
-
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+import { ENCRYPTION_KEY, TOKEN_KEY } from "../utils/authUtils";
 
 function NotificationWrapper() {
     const [notifications, setNotifications] = useState<Notification[]>([]);

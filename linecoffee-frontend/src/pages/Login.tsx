@@ -5,10 +5,7 @@ import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import CryptoJS from "crypto-js";
-
-// ✅ استخدمي المتغيرات من .env
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+import { ENCRYPTION_KEY, TOKEN_KEY } from "../utils/authUtils";
 
 interface JwtPayload {
     userId: string;

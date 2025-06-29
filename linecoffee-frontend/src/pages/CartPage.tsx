@@ -4,9 +4,8 @@ import ProductCard from "../components/ProductCard";
 import { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
+import { ENCRYPTION_KEY, TOKEN_KEY } from "../utils/authUtils";
 
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
 
 export default function CartPage() {
     const { cartItems, removeFromCart, updateQuantity } = useCart();

@@ -8,16 +8,7 @@ import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import { useCart } from "../context/CartContext";
 import { useWishList } from "../context/WishListContext";
 import { toast } from "react-toastify";
-
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
-
-function getDecryptedToken() {
-  const encrypted = localStorage.getItem(TOKEN_KEY);
-  if (!encrypted) return null;
-  const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
-  return bytes.toString(CryptoJS.enc.Utf8);
-}
+import { getDecryptedToken } from "../utils/authUtils";
 
 // Types
 interface Review {
@@ -93,12 +84,22 @@ export default function ProductDetails() {
 
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`);
+        const token = getDecryptedToken(); // ⬅️ ضروري تجيبي التوكن من localStorage أو authUtils
+
+        const res = await axios.get(
+          `https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // ⬅️ زودي الـ Authorization هنا
+            },
+          }
+        );
         setReviews(res.data);
       } catch (err) {
         console.error("Error fetching reviews", err);
       }
     };
+    
 
     if (productId) {
       fetchProduct();

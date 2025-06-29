@@ -1,16 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import CryptoJS from "crypto-js";
+import { getDecryptedToken } from "../utils/authUtils";
 
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
-
-function getDecryptedToken() {
-    const encrypted = localStorage.getItem(TOKEN_KEY);
-    if (!encrypted) return null;
-    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
-    return bytes.toString(CryptoJS.enc.Utf8);
-}
 
 type Product = {
     id: string;
@@ -44,12 +35,13 @@ export const WishListProvider = ({ children }: { children: React.ReactNode }) =>
     const [wishList, setWishList] = useState<Product[]>([]);
     const userId = localStorage.getItem("userId");
     const token = getDecryptedToken();
+    // const BASE_URL = import.meta.env.VITE_API_URL;
 
     // ✅ Load wishlist from backend
     useEffect(() => {
         if (!userId || !token) return;
         axios
-            .get(`http://localhost:5000/wishList/wishlist/${userId}`, {
+            .get(`https://line-coffee.onrender.com/wishList/wishlist/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
@@ -72,7 +64,7 @@ export const WishListProvider = ({ children }: { children: React.ReactNode }) =>
         const inList = wishList.find((p) => p.id === product.id);
 
         await axios.post(
-            "http://localhost:5000/wishList/toggleWishlist",
+            "https://line-coffee.onrender.com/wishList/toggleWishlist",
             {
                 userId,
                 productId: product.id,

@@ -8,17 +8,11 @@ import type { Notification } from "../../Types/notificationTypes";
 import SendReportForm from "./SendReportForm";
 import EditeUserForm from "./EditeUserForm";
 import NotificationsList from './NotificationList';
+import { clearToken, getDecryptedToken } from "../utils/authUtils";
 
 
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
 
-function getDecryptedToken() {
-  const encrypted = localStorage.getItem(TOKEN_KEY);
-  if (!encrypted) return null;
-  const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
-  return bytes.toString(CryptoJS.enc.Utf8);
-}
+
 function UserProfile() {
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -120,7 +114,8 @@ function UserProfile() {
                 </button>
 
                 <button className="btn btn-danger w-100" onClick={() => {
-                  localStorage.removeItem("linecoffeeToken");
+                  clearToken();
+                  localStorage.removeItem("userId");
                   window.location.href = "/login";
                 }}>🚪 Sign out</button>
               </div>

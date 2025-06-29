@@ -2,9 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import CryptoJS from "crypto-js";
-
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
-const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+import { ENCRYPTION_KEY, TOKEN_KEY } from "../utils/authUtils";
 
 type CoinLog = {
     _id?: string;

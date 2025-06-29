@@ -10,7 +10,9 @@
   --colorYellow:black;
   --bgColor:aquamarine;
   --border-radius: 30px;
-  --leftRight-Border-radius: 30px 30px 0 0
+  --leftRight-Border-radius: 30px 30px 0 0;
+  --search-Border: 2px solid #18a76e ;
+
 
 }
 
@@ -200,6 +202,45 @@ position: relative;
   padding: 15px;
   border-radius: 50%;
 } 
+
+/** ///////////////////////////////////////////////////////////////////////////////////////// */
+/** products List section */
+
+.form-control{
+  width: fit-content;
+  border: var(--search-Border);
+
+  
+
+}
+.form-control:focus {
+  /* color: var(--bs-body-color); */
+  /* background-color: var(--bs-body-bg); */
+  /* border-color: #86b7fe; */
+  /* outline: 0; */
+  box-shadow: 0 0 0 .25rem rgb(62 99 59 / 25%) !important;
+}
+#productsList .card {
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+#productsList .card-body {
+  padding: 0;
+}
+#productsList .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+#productsList .card-title {
+  font-size: 1.1rem;
+}
+
+#productsList .card-body .btn {
+  font-size: 0.85rem;
+  border-radius: 6px;
+}
 
 /** ///////////////////////////////////////////////////////////////////////////////////////// */
 /** about section */
