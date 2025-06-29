@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 type Report = {
     _id: string;
     user: { email: string };
@@ -13,11 +23,13 @@ type Report = {
 export default function UserReportsSection() {
     const [reports, setReports] = useState<Report[]>([]);
 
+    const token = getDecryptedToken();
+
 
     const fetchReports = async () => {
         try {
             const { data } = await axios.get("https://line-coffee.onrender.com/reports/getAllReports", {
-                withCredentials: true,
+                headers: { Authorization: `Bearer ${token}` },
             });
             setReports(data.reports || []);
         } catch (error) {
@@ -28,7 +40,7 @@ export default function UserReportsSection() {
     const markAsRead = async (id: string) => {
         try {
             await axios.put(`https://line-coffee.onrender.com/reports/markReportAsRead/${id}`, {}, {
-                withCredentials: true,
+                headers: { Authorization: `Bearer ${token}` },
             });
             fetchReports();
         } catch (err) {

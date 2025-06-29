@@ -2,14 +2,16 @@ import { useCart } from "../context/CartContext";
 import { useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+import CryptoJS from "crypto-js";
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
 
 export default function ConfirmOrderPage() {
     const { cartItems, clearCart } = useCart();
     const [confirmed, setConfirmed] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState("");
 
-    // البيانات من صفحة الكارت
     const location = useLocation();
     const {
         couponDiscount = 0,
@@ -20,15 +22,37 @@ export default function ConfirmOrderPage() {
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+    const getDecryptedToken = () => {
+        const encrypted = localStorage.getItem(TOKEN_KEY);
+        if (!encrypted) return null;
+        try {
+            const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+            return bytes.toString(CryptoJS.enc.Utf8);
+        } catch (err) {
+            console.error("Failed to decrypt token:", err);
+            return null;
+        }
+    };
+
     const handleConfirm = async () => {
         if (!selectedPayment) {
             alert("Please select a payment method");
             return;
         }
 
+        const token = getDecryptedToken();
+        if (!token) {
+            alert("User not authenticated");
+            return;
+        }
+
         try {
-            // 🟨 Create Order
-            const createRes = await axios.post("https://line-coffee.onrender.com/orders/createOrder", {
+            const createRes = await fetch("https://line-coffee.onrender.com/orders/createOrder", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     items: cartItems.map(item => ({
                         product: item.id,
@@ -37,25 +61,26 @@ export default function ConfirmOrderPage() {
                     couponCode,
                     walletAmount,
                 }),
-                
-            },{ withCredentials: true });
+            });
 
-            const created = await createRes.data;
+            const created = await createRes.json();
             if (!created.success) throw new Error("Order creation failed");
 
             const orderId = created.order._id;
 
-            // 🟦 Complete Order
-            const completeRes = await axios.put(`https://line-coffee.onrender.com/orders/completeOrder/${orderId}`, {
-             
-                withCredentials: true,
+            const completeRes = await fetch(`https://line-coffee.onrender.com/orders/completeOrder/${orderId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     paymentMethod: selectedPayment,
                     walletAmount,
                 }),
             });
 
-            const completeData = await completeRes.data;
+            const completeData = await completeRes.json();
             console.log("✅ Order completed", completeData);
 
             setConfirmed(true);
@@ -79,7 +104,6 @@ export default function ConfirmOrderPage() {
         <div className="container mt-5">
             <h2 className="mb-4">🧾 Confirm Your Order</h2>
             <div className="row">
-                {/* 🟩 المنتجات والعنوان */}
                 <div className="col-lg-8 mb-4">
                     <div className="card p-3 mb-4 shadow-sm">
                         <h5>📍 Shipping Address</h5>
@@ -94,14 +118,13 @@ export default function ConfirmOrderPage() {
                                 name={item.name}
                                 price={item.price * item.quantity}
                                 quantity={item.quantity}
-                                onRemove={() => { }} // غير مفعّل
-                                onQuantityChange={() => { }} // غير مفعّل
+                                onRemove={() => { }}
+                                onQuantityChange={() => { }}
                             />
                         ))}
                     </div>
                 </div>
 
-                {/* 🟦 ملخص الطلب وطريقة الدفع */}
                 <div className="col-lg-4">
                     <div className="card p-3 shadow-sm">
                         <h5>Order Summary</h5>
@@ -124,7 +147,6 @@ export default function ConfirmOrderPage() {
                             </li>
                         </ul>
 
-                        {/* 🟨 طريقة الدفع */}
                         <div className="mb-3">
                             <label className="form-label">Payment Method</label>
                             <select

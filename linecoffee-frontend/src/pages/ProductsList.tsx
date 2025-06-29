@@ -9,6 +9,17 @@ import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "react-toastify";
 
 
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
 // Define Product type
 type Product = {
     id: string;
@@ -31,27 +42,24 @@ function ProductsList({ products }: ProductsListProps) {
     const navigate = useNavigate();
 
     const handleAddToCart = (product: Product) => {
-        const isLoggedIn = document.cookie.includes("token=");
-        if (!isLoggedIn) {
+        const token = getDecryptedToken();
+        if (!token) {
             toast.warning("برجاء تسجيل الدخول أولاً");
             return navigate("/login");
         }
 
         addToCart({ ...product, quantity: 1 });
     };
-    
-    
 
     const handleToggleWish = (product: Product) => {
-        const isLoggedIn = document.cookie.includes("token=");
-        if (!isLoggedIn) {
+        const token = getDecryptedToken();
+        if (!token) {
             toast.warning("برجاء تسجيل الدخول أولاً");
             return navigate("/login");
         }
 
         toggleWish(product);
     };
-    
     
 
     return (

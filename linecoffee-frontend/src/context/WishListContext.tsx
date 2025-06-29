@@ -1,8 +1,17 @@
-// WishListContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import CryptoJS from "crypto-js";
 
-// Define product types
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
 type Product = {
     id: string;
     name: string;
@@ -26,21 +35,22 @@ type WishListContextType = {
     toggleWish: (product: Product) => void;
 };
 
-// Create context
 const WishListContext = createContext<WishListContextType>({
     wishList: [],
     toggleWish: () => { },
 });
 
-// Provider
 export const WishListProvider = ({ children }: { children: React.ReactNode }) => {
     const [wishList, setWishList] = useState<Product[]>([]);
+    const userId = localStorage.getItem("userId");
+    const token = getDecryptedToken();
 
     // ✅ Load wishlist from backend
     useEffect(() => {
+        if (!userId || !token) return;
         axios
-            .get("https://line-coffee.onrender.com/wishList/wishlist/me", {
-                withCredentials: true,
+            .get(`http://localhost:5000/wishList/wishlist/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
                 const mapped = res.data.wishlist.map((p: RawProductFromBackend) => ({
@@ -52,32 +62,30 @@ export const WishListProvider = ({ children }: { children: React.ReactNode }) =>
                     description: p.productsDescription,
                 }));
                 setWishList(mapped);
-            })
-            .catch((err) => {
-                console.log("🟡 Not logged in or failed to fetch wishlist",err);
             });
-    }, []);
+    }, [userId, token]);
 
-    // ✅ Toggle wish product
+    // ✅ Toggle wish from backend
     const toggleWish = async (product: Product) => {
-        try {
-            await axios.post(
-                "https://line-coffee.onrender.com/wishList/toggleWishlist",
-                {
-                    productId: product.id,
-                },
-                { withCredentials: true }
-            );
+        if (!userId || !token) return;
 
-            const exists = wishList.find((p) => p.id === product.id);
+        const inList = wishList.find((p) => p.id === product.id);
 
-            if (exists) {
-                setWishList((prev) => prev.filter((p) => p.id !== product.id));
-            } else {
-                setWishList((prev) => [...prev, product]);
+        await axios.post(
+            "http://localhost:5000/wishList/toggleWishlist",
+            {
+                userId,
+                productId: product.id,
+            },
+            {
+                headers: { Authorization: `Bearer ${token}` },
             }
-        } catch (err) {
-            console.error("❌ Error toggling wishlist item:", err);
+        );
+
+        if (inList) {
+            setWishList((prev) => prev.filter((p) => p.id !== product.id));
+        } else {
+            setWishList((prev) => [...prev, product]);
         }
     };
 
@@ -88,5 +96,4 @@ export const WishListProvider = ({ children }: { children: React.ReactNode }) =>
     );
 };
 
-// Hook
 export const useWishList = () => useContext(WishListContext);

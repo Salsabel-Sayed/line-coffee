@@ -9,6 +9,16 @@ import { useCart } from "../context/CartContext";
 import { useWishList } from "../context/WishListContext";
 import { toast } from "react-toastify";
 
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+  const encrypted = localStorage.getItem(TOKEN_KEY);
+  if (!encrypted) return null;
+  const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+  return bytes.toString(CryptoJS.enc.Utf8);
+}
+
 // Types
 interface Review {
   user: string;
@@ -25,7 +35,7 @@ interface Product {
   averageRating?: number;
 }
 
-// Render display stars (not interactive)
+// Render display stars
 function renderStars(rating: number) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
@@ -58,7 +68,6 @@ function StarRatingInput({ rating, setRating }: { rating: number; setRating: (va
     </div>
   );
 }
-
 // Main Component
 export default function ProductDetails() {
   // const { id } = useParams<{ id: string }>();
@@ -70,25 +79,13 @@ export default function ProductDetails() {
   const [comment, setComment] = useState("");
   const { addToCart } = useCart();
   const { toggleWish, wishList } = useWishList();
-  const inWishList = product
-    ? wishList.some((p: { id: string }) => p.id === product._id)
-    : false;
-
-
-
-
-  
+  const inWishList = product ? wishList.some((p: { id: string }) => p.id === product._id) : false;
 
   useEffect(() => {
-    console.log("🚀 productId from URL:", productId);
-
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://line-coffee.onrender.com/products/getProductById/${productId}`, { withCredentials: true }
-        );
+        const res = await axios.get(`https://line-coffee.onrender.com/products/getProductById/${productId}`);
         setProduct(res.data.product);
-        console.log("res.data",res.data.product);
-        
       } catch (err) {
         console.error("Error fetching product", err);
       }
@@ -96,8 +93,7 @@ export default function ProductDetails() {
 
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, { withCredentials: true }
-        );
+        const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`);
         setReviews(res.data);
       } catch (err) {
         console.error("Error fetching reviews", err);
@@ -111,73 +107,68 @@ export default function ProductDetails() {
   }, [productId]);
 
   const handleReviewSubmit = async () => {
-   
+    const token = getDecryptedToken();
+    if (!token) return navigate("/login");
 
     try {
       await axios.post(
         `https://line-coffee.onrender.com/reviews/addReview`,
-        { productId , rating, comment },
-        { withCredentials: true },
+        { productId, rating, comment },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Review submitted!");
       setRating(0);
       setComment("");
-      const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, 
-        { withCredentials: true });
+      const res = await axios.get(`https://line-coffee.onrender.com/reviews/getProductReviews/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setReviews(res.data);
     } catch (error: unknown) {
       const err = error as AxiosError<{ message: string }>;
       alert(err.response?.data?.message || "Error submitting review");
     }
   };
+
   const handleAddToCart = () => {
-    axios.get("https://line-coffee.onrender.com/users/getMe", { withCredentials: true })
-      .then(() => {
-        if (product) {
-          const formattedProduct = {
-            id: product._id,
-            name: product.productsName,
-            image: product.imageUrl || "",
-            price: product.price,
-            quantity: 1
-          };
+    const token = getDecryptedToken();
+    if (!token) {
+      toast.warning("برجاء تسجيل الدخول أولاً");
+      return navigate("/login");
+    }
 
-          addToCart(formattedProduct);
-          toast.success("تمت الإضافة إلى السلة!");
-        }
-      })
-      .catch(() => {
-        toast.warning("برجاء تسجيل الدخول أولاً");
-        navigate("/login");
-      });
+    if (product) {
+      const formattedProduct = {
+        id: product._id,
+        name: product.productsName,
+        image: product.imageUrl || "",
+        price: product.price,
+        quantity: 1,
+      };
 
-    
-  };
-
-  const handleToggleWish = async () => {
-    try {
-      // مش هتحتاجي token من localStorage خالص
-      const res = await axios.post("https://line-coffee.onrender.com/wishlist/toggleWishlist", { productId }, {
-        withCredentials: true
-      });
-      
-    console.log("res wishlist",res);
-    
-
-
-      toggleWish({
-        id: product?._id || "",
-        name: product?.productsName || "",
-        image: product?.imageUrl || "",
-        price: product?.price || 0,
-      });
-
-      toast.success("تمت الإضافة/الإزالة من المفضلة");
-    } catch (error) {
-      toast.error(`${error}`);
+      addToCart(formattedProduct);
+      toast.success("تمت الإضافة إلى السلة!");
     }
   };
-  
+
+  const handleToggleWish = () => {
+    const token = getDecryptedToken();
+    if (!token) {
+      toast.warning("برجاء تسجيل الدخول أولاً");
+      return navigate("/login");
+    }
+
+    if (product) {
+      const formattedProduct = {
+        id: product._id,
+        name: product.productsName,
+        image: product.imageUrl || "",
+        price: product.price,
+      };
+
+      toggleWish(formattedProduct);
+      toast.success("تمت الإضافة/الإزالة من المفضلة");
+    }
+  };
   
 
   if (!product) return <div className="container mt-5">Product not found!</div>;

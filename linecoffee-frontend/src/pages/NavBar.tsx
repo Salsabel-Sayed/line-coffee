@@ -10,10 +10,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCartShopping, faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { useWishList } from "../context/WishListContext";
 import { useCart } from "../context/CartContext";
-import axios from "axios";
 
 
-
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
 interface user {
   email: string;
   name: string;
@@ -46,25 +46,30 @@ export default function MainNavbar() {
 
   const fetchNotifications = async () => {
     try {
-      
+      const encrypted = localStorage.getItem(TOKEN_KEY);
+      if (!encrypted) return;
 
-      const res = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { withCredentials: true })
+      const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+      const token = bytes.toString(CryptoJS.enc.Utf8);
 
-      const data = await res.data;
+      const res = await fetch("https://line-coffee.onrender.com/notifications/getUserNotifications", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
       const all = data.notifications || [];
       setNotifications(all);
 
-      // نجيب آخر مرة شاف فيها اليوزر الإشعارات
       const lastSeen = localStorage.getItem("notificationsLastSeen");
       const lastSeenDate = lastSeen ? new Date(lastSeen) : new Date(0);
 
-      // نحسب الجديد فقط
       const newNotifs = all.filter((n: Notification) => new Date(n.createdAt) > lastSeenDate);
       setUnreadCount(newNotifs.length);
     } catch (err) {
       console.error("Error fetching notifications", err);
     }
   };
+    
     
 
   useEffect(() => {
@@ -91,33 +96,20 @@ export default function MainNavbar() {
       return () => window.removeEventListener('scroll', handleScroll);
     }, []);
     
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("https://line-coffee.onrender.com/users/getMe", {
-          withCredentials: true,
-        });
-        setUser(res.data.user);
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-        setUser(null);
+    useEffect(() => {
+      const token = localStorage.getItem("linecoffeeToken");
+      const userInfo = localStorage.getItem("user");
+
+      if (token && userInfo) {
+        setUser(JSON.parse(userInfo));
       }
-    };
+    }, []);
 
-    fetchUser();
-  }, []);
-    
-
-  const handleLogout = async () => {
-    try {
-      await axios.post("https://line-coffee.onrender.com/users/logout", {}, { withCredentials: true });
+    const handleLogout = () => {
+      localStorage.clear();
       setUser(null);
       navigate("/login");
-    } catch (err) {
-      console.error("Failed to logout", err);
-    }
-  };
-  
+    };
 
     const isAdminAccount = user?.email === "admin@gmail.com";
     return (

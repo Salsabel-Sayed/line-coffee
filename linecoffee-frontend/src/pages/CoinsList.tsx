@@ -1,6 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import CryptoJS from "crypto-js";
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
 
 type CoinLog = {
     _id?: string;
@@ -21,9 +25,24 @@ type CoinsProps = {
 function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
     const [redeemAmount, setRedeemAmount] = useState(0);
 
+    const getDecryptedToken = () => {
+        const encrypted = localStorage.getItem(TOKEN_KEY);
+        if (!encrypted) return null;
+        try {
+            const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+            return bytes.toString(CryptoJS.enc.Utf8);
+        } catch (err) {
+            console.error("Failed to decrypt token:", err);
+            return null;
+        }
+    };
+
     const handleRedeem = async () => {
+        const token = getDecryptedToken();
         const userId = localStorage.getItem("userId");
-        console.log("userId before request:", userId);
+
+        if (!token || !userId) return toast.error("User not logged in");
+
         try {
             const res = await axios.put(
                 `https://line-coffee.onrender.com/coins/redeemCoins/${userId}`,
@@ -31,20 +50,15 @@ function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
                     coinsToRedeem: redeemAmount,
                     reason: "User Redeemed Coins",
                 },
-                
-                { withCredentials: true },
-                
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
-            console.log("Request sent!");
-            console.log("Response:", res.data);
-
             toast.success(res.data.message);
-
-            // ✅ هنا بندي أمر بإعادة تحميل البيانات من السيرفر
             if (onRedeemSuccess) onRedeemSuccess();
-
-            console.log("redeemAmount:", redeemAmount);
         } catch (err: unknown) {
             console.error(err);
             if (axios.isAxiosError(err)) {
@@ -58,7 +72,6 @@ function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
     return (
         <div>
             <h3>💰 Your Coins: {coins.coins}</h3>
-
             <div className="mt-3">
                 <input
                     type="number"
@@ -92,8 +105,7 @@ function CoinsList({ coins, onRedeemSuccess }: CoinsProps) {
                             <tr
                                 key={log._id}
                                 style={{
-                                    backgroundColor:
-                                        log.action === "deduct" ? "#ffe6e6" : "transparent",
+                                    backgroundColor: log.action === "deduct" ? "#ffe6e6" : "transparent",
                                 }}
                             >
                                 <td>{new Date(log.createdAt).toLocaleDateString()}</td>

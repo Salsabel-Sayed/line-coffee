@@ -2,7 +2,20 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Button, Form } from "react-bootstrap";
 import AddUserSection from "./AddUserSection";
+import CryptoJS from "crypto-js";
 // import { toast } from "react-toastify";
+
+
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 type User = {
     _id: string;
@@ -25,7 +38,8 @@ export default function UsersSection() {
 
     
 
-    const token = localStorage.getItem("linecoffeeToken");
+    const token = getDecryptedToken();
+
 
     const fetchUsers = async () => {
         const { data } = await axios.get("https://line-coffee.onrender.com/users/getAllUsers", {
@@ -68,15 +82,17 @@ export default function UsersSection() {
         delete dataToSend.coins;
         delete dataToSend.wallet;
 
-        const {data}= await axios.put(
+        const { data } = await axios.put(
             `https://line-coffee.onrender.com/users/adminUpdateUser/${_id}`,
             dataToSend,
             {
                 headers: { Authorization: `Bearer ${token}` },
             }
         );
+
         if (data.authorization) {
-            localStorage.setItem("linecoffeeToken", data.authorization);
+            const encryptedToken = CryptoJS.AES.encrypt(data.authorization, ENCRYPTION_KEY).toString();
+            localStorage.setItem(TOKEN_KEY, encryptedToken);
           }
 
         setShowEditModal(false);

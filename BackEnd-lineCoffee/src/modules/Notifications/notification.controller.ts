@@ -19,7 +19,7 @@ export const sendNotification = async (userId: string | Types.ObjectId, title: s
 //? get User Notifications
 export const getUserNotifications = catchError(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const userId = req.user;
+    const userId = req.user?.userId;
 
     const notifications = await Notification.find({
       $or: [

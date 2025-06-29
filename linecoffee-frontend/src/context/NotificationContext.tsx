@@ -1,7 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import  type { Notification } from "../../Types/notificationTypes";
-import axios from "axios";
 
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 interface NotificationContextType {
     notifications: Notification[];
     unreadCount: number;
@@ -16,12 +25,16 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
     const fetchNotifications = async () => {
         try {
-            
-            const res = await axios.get("https://line-coffee.onrender.com/getUserNotifications", {
-                withCredentials: true,
+            const token = getDecryptedToken();
+
+            const res = await fetch("https://line-coffee.onrender.com/getUserNotifications", {
+                credentials: "include",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
-            const data = await res.data;
+            const data = await res.json();
             setNotifications(data.notifications || []);
             const unread = data.notifications?.filter((n: Notification) => !n.isRead).length || 0;
             setUnreadCount(unread);

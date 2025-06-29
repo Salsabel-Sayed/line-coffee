@@ -2,26 +2,34 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 export default function SendReportForm() {
-    const [subject, setSubject] = useState("");
+ const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!subject || !message) return toast.error("Please fill in all fields");
 
+        const token = getDecryptedToken();
+        if (!token) return toast.error("User not logged in");
+
         try {
-            await axios.post(
-                "https://line-coffee.onrender.com/reports/createReport",
-                {
-                    subject,
-                    message,
-                },
-                {
-                    withCredentials: true,
-                }
-            );
-              
+            await axios.post("https://line-coffee.onrender.com/reports/createReport", {
+                subject,
+                message,
+            }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
             toast.success("Report sent to admin ✅");
             setSubject("");

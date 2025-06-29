@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Button, Form } from 'react-bootstrap';
 
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+    const encrypted = localStorage.getItem(TOKEN_KEY);
+    if (!encrypted) return null;
+    const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 type Item = {
     product: {
         _id: string;
@@ -45,7 +55,8 @@ export default function OrdersSection() {
     const [editCoupon, setEditCoupon] = useState("");
     const [editWallet, setEditWallet] = useState<number>(0);
     const [editItems, setEditItems] = useState<Item[]>([]);
-    const token = localStorage.getItem("linecoffeeToken");
+    const token = getDecryptedToken();
+
 
     const fetchOrders = async () => {
         const { data } = await axios.get("https://line-coffee.onrender.com/orders/getAllOrders", {

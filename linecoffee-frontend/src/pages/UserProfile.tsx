@@ -10,6 +10,15 @@ import EditeUserForm from "./EditeUserForm";
 import NotificationsList from './NotificationList';
 
 
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
+
+function getDecryptedToken() {
+  const encrypted = localStorage.getItem(TOKEN_KEY);
+  if (!encrypted) return null;
+  const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+  return bytes.toString(CryptoJS.enc.Utf8);
+}
 function UserProfile() {
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -30,15 +39,16 @@ function UserProfile() {
 
   const fetchUserData = async () => {
     try {
-      
-      const res = await axios.get("https://line-coffee.onrender.com/users/getMe", {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const token = getDecryptedToken();
+      const userId = localStorage.getItem("userId");
+      if (!token) return toast.error("User not logged in");
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const res = await axios.get(`https://line-coffee.onrender.com/users/finduserInfo/${userId}`, { headers });
       const user = res.data.user;
-      const userId = user._id;
 
       setUserData({
         name: user.userName || "",
@@ -47,27 +57,20 @@ function UserProfile() {
         email: user.email || "",
       });
 
-      const coinsRes = await axios.get(`https://line-coffee.onrender.com/coins/getUserCoins/${userId}`, { withCredentials: true });
+      const coinsRes = await axios.get(`https://line-coffee.onrender.com/coins/getUserCoins/${userId}`, { headers });
       setCoins({
         coins: coinsRes.data.coins || 0,
         logs: coinsRes.data.logs || [],
       });
 
-      const walletRes = await axios.get(`https://line-coffee.onrender.com/wallets/getUserWallet/${userId}`, { withCredentials: true });
+      const walletRes = await axios.get(`https://line-coffee.onrender.com/wallets/getUserWallet/${userId}`, { headers });
       setWallet(walletRes.data);
 
-      // 👇 دي الإضافة الجديدة
-      const notiRes = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { withCredentials: true });
+      const notiRes = await axios.get("https://line-coffee.onrender.com/notifications/getUserNotifications", { headers });
       setNotifications(notiRes.data.notifications || []);
 
-      // Get User Orders
-      const ordersRes = await axios.get("https://line-coffee.onrender.com/orders/myOrders", { withCredentials: true });
-      console.log("ordersRes",ordersRes);
-      
+      const ordersRes = await axios.get("https://line-coffee.onrender.com/orders/myOrders", { headers });
       setUserOrders(ordersRes.data.orders || []);
-
-
-
     } catch (error) {
       console.log(error);
       toast.error("Failed to load user profile");
@@ -117,9 +120,8 @@ function UserProfile() {
                 </button>
 
                 <button className="btn btn-danger w-100" onClick={() => {
-                   axios.post("https://line-coffee.onrender.com/users/logout", {}, { withCredentials: true });
+                  localStorage.removeItem("linecoffeeToken");
                   window.location.href = "/login";
-                  
                 }}>🚪 Sign out</button>
               </div>
             </div>

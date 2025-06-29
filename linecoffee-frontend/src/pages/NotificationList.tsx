@@ -2,6 +2,10 @@ import { useState } from 'react';
 import type { Notification } from "../../Types/notificationTypes";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import CryptoJS from "crypto-js";
+
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY!;
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY!;
 
 type NotificationsProps = {
     notifications: Notification[];
@@ -15,12 +19,30 @@ function NotificationsList({ notifications, onRefresh }: NotificationsProps) {
         ? notifications
         : notifications.filter(n => n.type === filter);
 
+    const getDecryptedToken = () => {
+        const encrypted = localStorage.getItem(TOKEN_KEY);
+        if (!encrypted) return null;
+        try {
+            const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY);
+            return bytes.toString(CryptoJS.enc.Utf8);
+        } catch (err) {
+            console.error("Failed to decrypt token:", err);
+            return null;
+        }
+    };
+
     const handleMarkAsRead = async (notificationId: string) => {
+        const token = getDecryptedToken();
+
+        if (!token) return toast.error("User not logged in");
 
         try {
             await axios.put(
                 `https://line-coffee.onrender.com/notifications/markReportAsRead/${notificationId}`,
-                {},{ withCredentials: true },
+                {},
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
             );
 
             toast.success("Marked as read");

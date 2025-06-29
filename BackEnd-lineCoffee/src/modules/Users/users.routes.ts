@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { checkEmail } from "../../middlewares/CheckEmail/checkEmail";
-import { adminDeleteUser, adminUpdateUser, createUserByAdmin, deleteUser, getAllUsers, getMe, loginUser, logoutUser, registerUser, updateUser } from "./users.controller";
+import { adminDeleteUser, adminUpdateUser, createUserByAdmin, deleteUser, finduserInfo, getAllUsers, loginUser, logoutUser, registerUser, updateUser } from "./users.controller";
 import { verifyToken } from './../../middlewares/token/token';
 import { validate } from "../../middlewares/validate/validate";
 import { loginSchema, registerSchema } from "./userValidation";
@@ -16,9 +16,7 @@ userRouter.post('/logIn', validate(loginSchema), loginUser);
 userRouter.put('/updateUser/:id',verifyToken,updateUser)
 userRouter.delete('/deleteUser/:id',verifyToken,deleteUser)
 userRouter.put('/logoutUser/:id',verifyToken,logoutUser)
-// userRouter.get('/finduserInfo/:id',verifyToken,finduserInfo)
-userRouter.get("/getMe", verifyToken, getMe);
-
+userRouter.get('/finduserInfo/:id',verifyToken,finduserInfo)
 userRouter.get('/getAllUsers/', verifyToken, getAllUsers);//admin
 userRouter.put('/adminUpdateUser/:id', verifyToken, adminUpdateUser); //admin
 userRouter.delete('/adminDeleteUser/:id', verifyToken, adminDeleteUser);//admin
