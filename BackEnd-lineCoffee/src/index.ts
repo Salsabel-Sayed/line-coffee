@@ -19,10 +19,10 @@ import i18n from "./config/i18n";
 import cors from "cors";
 import wishListRouter from "./modules/WishList/WishList.routes";
 import reportsRouter from "./modules/Reports/Reports.routes";
+import cookieParser from "cookie-parser"; 
+import helmet from "helmet";
 
 
-
-import cookieParser from "cookie-parser"; // ✅ الصحيح
 
 
 
@@ -34,6 +34,7 @@ dotenv.config();
 // Connect to Database
 connectDB();
 const app: Application = express();
+app.use(helmet());
 
 
 

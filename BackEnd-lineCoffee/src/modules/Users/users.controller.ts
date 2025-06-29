@@ -46,6 +46,43 @@ export const registerUser = catchError(async (req: Request, res: Response, next:
         next(error); 
     }
 });
+
+//* ////////////////////////////////////////////////////////////////////////////////////////////////////
+//? log in user
+export const loginUser = catchError(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { email, password } = req.body;
+  console.log(email , password);
+
+
+  const userExist = await User.findOne({ email });
+  if (!userExist) return next(new AppError("User not found", 404));
+
+  const isPasswordValid = await bcrypt.compare(password, userExist.password);
+  if (!isPasswordValid) return next(new AppError("Invalid password!", 404));
+
+  if (userExist.email !== email) return next(new AppError("Invalid email or password!", 404));
+
+  const activeState = await User.updateOne({ _id: userExist._id }, { logging: true, firstLoginCouponUsed: true }  );
+  console.log("activeState", activeState);
+
+  const secretKey = process.env.PASSWORD_TOKEN || "thisisLineCoffeeProj";
+  let authorization = jwt.sign(
+    {
+      userId: userExist._id,
+      email: userExist.email,
+      role: userExist.role,
+      logging: userExist.logging,
+    },
+    secretKey,
+    { expiresIn: "3d" }
+  );
+  if (userExist.coins && !(userExist.coins instanceof Types.ObjectId)) {
+    userExist.coins = undefined; // أو null لو بتحبي
+  }
+  
+  await userExist.save();
+  res.json({ message: "Signed in successfully", authorization });
+});
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
 //? create User By Admin
 export const createUserByAdmin = catchError(
@@ -93,42 +130,7 @@ export const createUserByAdmin = catchError(
 );
 
 
-//* ////////////////////////////////////////////////////////////////////////////////////////////////////
-//? log in user
-export const loginUser = catchError(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { email, password } = req.body;
-    console.log(email , password);
 
-
-    const userExist = await User.findOne({ email });
-    if (!userExist) return next(new AppError("User not found", 404));
-
-    const isPasswordValid = await bcrypt.compare(password, userExist.password);
-    if (!isPasswordValid) return next(new AppError("Invalid password!", 404));
-
-    if (userExist.email !== email) return next(new AppError("Invalid email or password!", 404));
-
-    const activeState = await User.updateOne({ _id: userExist._id }, { logging: true, firstLoginCouponUsed: true }  );
-    console.log("activeState", activeState);
-
-    const secretKey = process.env.PASSWORD_TOKEN || "thisisLineCoffeeProj";
-    let authorization = jwt.sign(
-      {
-        userId: userExist._id,
-        email: userExist.email,
-        password: userExist.password,
-        role: userExist.role,
-        logging: userExist.logging,
-      },
-      secretKey
-    );
-    if (userExist.coins && !(userExist.coins instanceof Types.ObjectId)) {
-      userExist.coins = undefined; // أو null لو بتحبي
-    }
-    
-    await userExist.save();
-    res.json({ message: "Signed in successfully", authorization });
-});
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
 //? log out user
 export const logoutUser = catchError(async (req: AuthenticatedRequest, res: Response, next: NextFunction):Promise<void>=>{
