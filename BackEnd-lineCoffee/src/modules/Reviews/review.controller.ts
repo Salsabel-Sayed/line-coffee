@@ -44,13 +44,16 @@ export const addReview = catchError(async (req: AuthenticatedRequest, res: Respo
     });
 
     // ✅ تحديث متوسط تقييم المنتج
-    const reviews = await Review.find({ product: productId });
+    const reviews = await Review.find({ product: productId }).populate(
+      "user",
+      "userName"
+    );
     const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
     product.averageRating = avgRating;
     product.numOfReviews = reviews.length;
     await product.save();
 
-    res.status(201).json({ message: "Review added successfully!" });
+    res.status(201).json({ message: "Review added successfully!",reviews });
 });
 
 //* ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +61,10 @@ export const addReview = catchError(async (req: AuthenticatedRequest, res: Respo
 export const getProductReviews = catchError(async (req: Request, res: Response, next: NextFunction) => {
     const { productId } = req.params;
 
-    const reviews = await Review.find({ product: productId }).populate("user", "name"); // ✅ جلب اسم المستخدم
+    const reviews = await Review.find({ product: productId }).populate(
+      "user",
+      "userName"
+    ); // ✅ جلب اسم المستخدم
     res.status(200).json(reviews);
 });
 
