@@ -8,7 +8,7 @@ import { addReview, deleteReview, getProductReviews } from "./review.controller"
 const ReviewRouter = Router()
 
 ReviewRouter.post('/addReview',verifyToken,addReview);
-ReviewRouter.get('/getProductReviews/:productId',verifyToken,getProductReviews);
+ReviewRouter.get('/getProductReviews/:productId',getProductReviews);
 ReviewRouter.delete('/deleteReview/:reviewId', verifyToken, deleteReview);
 
 
